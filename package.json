@@ -6,12 +6,13 @@
   "license": "ISC",
   "author": "Florian Delezenne <del.florian@gmail.com>",
   "scripts": {
-  "pretest": "npm install",
-  "lint": "eslint src/**/*.js",
-  "start": "node app.js"
+    "lint": "eslint src/**/*.js",
+    "start": "node app.js",
+    "test": "mocha -R spec src/test/** -t 100000"
   },
   "devDependencies": {
-
+    "chai": "^3.5.0",
+    "mocha": "^3.1.0"
   },
   "dependencies": {
     "body-parser": "^1.12.4",
@@ -23,7 +24,6 @@
     "extend": "^2.0.0",
     "handlebars": "^4.0.3",
     "http-measuring-client": "^0.3.6",
-    "iconv-lite": "^0.4.13",
     "js2xmlparser": "1.0.0",
     "request": "^2.55.0",
     "standard-error": "^1.1.0",

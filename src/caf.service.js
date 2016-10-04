@@ -2,7 +2,6 @@ const request = require('request')
 const fs = require('fs')
 const Handlebars = require('handlebars')
 const UrlAssembler = require('url-assembler')
-const iconv = require('iconv-lite')
 const parseXml = require('xml2js').parseString
 const documentType = require('./models/typeDocument')
 const errors = require('./models/errors')
@@ -19,7 +18,7 @@ class CafService {
   }
 
   getQf(codePostal, numeroAllocataire, callback) {
-    this.getData(codePostal, numeroAllocataire, 'droits', (err, data) => {
+    this.getData({codePostal, numeroAllocataire, type: 'droits'}, (err, data) => {
       if(err) return callback(err)
       const doc = data['drtData']
       const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
@@ -39,7 +38,7 @@ class CafService {
   }
 
   getAdress(codePostal, numeroAllocataire, callback) {
-    this.getData(codePostal, numeroAllocataire, 'droits', (err, data) => {
+    this.getData({codePostal, numeroAllocataire, type: 'droits'}, (err, data) => {
       if(err) return callback(err)
       const doc = data['drtData']
 
@@ -70,7 +69,7 @@ class CafService {
   }
 
   getFamily(codePostal, numeroAllocataire, callback) {
-    this.getData(codePostal, numeroAllocataire, 'droits', (err, data) => {
+    this.getData({codePostal, numeroAllocataire, type: 'droits'}, (err, data) => {
       if(err) return callback(err)
       const doc = data['drtData']
       const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
@@ -95,9 +94,7 @@ class CafService {
     })
   }
 
-  getData(codePostal, numeroAllocataire, type, callback) {
-    var self = this
-
+  getData({codePostal, numeroAllocataire, type, returnRawData}, callback) {
     const typeDocument =  documentType[type]
     const parameters = {
       typeEnvoi: 5,
@@ -111,28 +108,21 @@ class CafService {
                   .toString()
 
     request
-        .post({
-          url: url,
-          body: queryWithParameters,
-          headers: { 'Content-Type': 'text/xml charset=utf-8' },
-          gzip: true,
-          cert: this.sslCertificate,
-          key: this.sslKey,
-          rejectUnauthorized: false,
-          timeout: 10000,
-          encoding: null
-        })
-        .on('error', err => callback(err))
-        .on('response', this.returnStructuredData(self, callback))
-  }
+      .post({
+        url: url,
+        body: queryWithParameters,
+        headers: { 'Content-Type': 'text/xml charset=utf-8' },
+        gzip: true,
+        cert: this.sslCertificate,
+        key: this.sslKey,
+        rejectUnauthorized: false,
+        timeout: 10000
+      }, (err, response, body) => {
+        if (response.statusCode !== 200) return callback(new StandardError('Request error', { code: 500 }))
 
+        if (returnRawData) return callback(err, body)
 
-  returnStructuredData(self, callback) {
-    return (res) => {
-      if (res.statusCode !== 200) return callback(new StandardError('Request error', { code: 500 }))
-      res.pipe(iconv.decodeStream('latin1')).collect(function(err, decodedBody) {
-        if(err) return callback(err)
-        parseXml(self.getFirstPart(decodedBody), (err, result) => {
+        parseXml(this.getFirstPart(body), (err, result) => {
           if(err) return callback(err)
           const returnData = result['soapenv:Envelope']['soapenv:Body'][0]['ns2:demanderDocumentWebResponse'][0]['return'][0]['beanRetourDemandeDocumentWeb'][0]
           const returnCode = returnData['codeRetour'][0]
@@ -145,15 +135,10 @@ class CafService {
           })
         })
       })
-    }
   }
 
   hasBodyError(body){
     return body.indexOf('<codeRetour>0</codeRetour>') < 0
-  }
-
-  getSecondPart(body) {
-    return this.getPart(2, body)
   }
 
   getFirstPart(body) {
