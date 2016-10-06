@@ -118,9 +118,8 @@ class CafService {
         rejectUnauthorized: false,
         timeout: 10000
       }, (err, response, body) => {
-        if (response.statusCode !== 200) return callback(new StandardError('Request error', { code: 500 }))
-
         if (returnRawData) return callback(err, body)
+        if (response.statusCode !== 200) return callback(new StandardError('Request error', { code: 500 }))
 
         parseXml(this.getFirstPart(body), (err, result) => {
           if(err) return callback(err)
