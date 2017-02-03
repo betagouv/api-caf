@@ -3,7 +3,6 @@ const fs = require('fs')
 const Handlebars = require('handlebars')
 const UrlAssembler = require('url-assembler')
 const parseXml = require('xml2js').parseString
-const documentType = require('./models/typeDocument')
 const errors = require('./models/errors')
 const StandardError = require('standard-error')
 
@@ -18,7 +17,7 @@ class CafService {
   }
 
   getQf(codePostal, numeroAllocataire, callback) {
-    this.getData({codePostal, numeroAllocataire, type: 'droits'}, (err, data) => {
+    this.getData({codePostal, numeroAllocataire}, (err, data) => {
       if(err) return callback(err)
       const doc = data['drtData']
       const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
@@ -38,7 +37,7 @@ class CafService {
   }
 
   getAdress(codePostal, numeroAllocataire, callback) {
-    this.getData({codePostal, numeroAllocataire, type: 'droits'}, (err, data) => {
+    this.getData({codePostal, numeroAllocataire}, (err, data) => {
       if(err) return callback(err)
       const doc = data['drtData']
 
@@ -69,7 +68,7 @@ class CafService {
   }
 
   getFamily(codePostal, numeroAllocataire, callback) {
-    this.getData({codePostal, numeroAllocataire, type: 'droits'}, (err, data) => {
+    this.getData({codePostal, numeroAllocataire}, (err, data) => {
       if(err) return callback(err)
       const doc = data['drtData']
       const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
@@ -94,13 +93,12 @@ class CafService {
     })
   }
 
-  getData({codePostal, numeroAllocataire, type, returnRawData}, callback) {
-    const typeDocument =  documentType[type]
+  getData({codePostal, numeroAllocataire, returnRawData}, callback) {
     const parameters = {
       typeEnvoi: 5,
       codePostal ,
       numeroAllocataire,
-      typeDocument
+      typeDocument: 4
     }
     const queryWithParameters = this.queryTemplate(parameters)
     const url = UrlAssembler(this.options.cafHost)
