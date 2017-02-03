@@ -2,7 +2,6 @@ const http = require('http')
 const express = require('express')
 const StandardError = require('standard-error')
 const expressBunyanLogger = require('express-bunyan-logger')
-const bodyParser = require('body-parser')
 const cors = require('cors')
 const formatFromUrl = require('./lib/middlewares/formatFromUrl')
 const loggerProperties = require('./lib/middlewares/logger')
@@ -20,7 +19,6 @@ function Server ({config, logger}) {
 
   app.disable('x-powered-by');
   app.use(express.static('public'));
-  app.use(bodyParser.json());
   var corsOptions = {
     exposedHeaders: ['Range', 'Content-Range', 'X-Content-Range'],
     credentials: true,
