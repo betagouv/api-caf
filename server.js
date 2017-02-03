@@ -5,6 +5,7 @@ const cors = require('cors')
 const loggerProperties = require('./lib/middlewares/logger')
 const formatError = require('./lib/middlewares/formatError')
 const caf = require('./src')
+const fs = require('fs')
 
 function createServer ({ config, logger }) {
   const app = express()
@@ -27,7 +28,17 @@ function createServer ({ config, logger }) {
     next()
   })
 
-  app.use('/api', caf(config))
+  app.use('/api', caf({
+    serviceParams: {
+      host: config.cafHost,
+      cert: fs.readFileSync(config.cafSslCertificate),
+      key: fs.readFileSync(config.cafSslKey)
+    },
+    pingParams: {
+      codePostal: config.codePostal,
+      numeroAllocataire: config.numeroAllocataire
+    }
+  }))
 
   app.use(function notFound (req, res, next) {
     next(new StandardError('no route for URL ' + req.url, {code: 404}))

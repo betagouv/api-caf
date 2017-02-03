@@ -3,14 +3,12 @@ const CafService = require('./caf.service')
 
 module.exports = CafController
 
-function CafController (options) {
-  options = options || {}
-  var cafService = new CafService(options)
+function CafController ({ pingParams, serviceParams }) {
+  const cafService = new CafService(serviceParams)
 
   this.ping = function (req, res, next) {
-    var codePostal = options.codePostal
-    var numeroAllocataire = options.numeroAllocataire
-    cafService.getFamily(codePostal, numeroAllocataire, (err) => {
+    const { codePostal, numeroAllocataire } = pingParams
+    cafService.getFamily(codePostal, numeroAllocataire, err => {
       if (err) return next(err)
       return res.send('pong')
     })

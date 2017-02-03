@@ -1,5 +1,4 @@
 const request = require('request')
-const fs = require('fs')
 const parseXml = require('xml2js').parseString
 const errors = require('./models/errors')
 const StandardError = require('standard-error')
@@ -27,10 +26,10 @@ function buildQuery ({ codePostal, numeroAllocataire }) {
 
 class CafService {
 
-  constructor (options) {
-    this.options = options || {}
-    this.sslCertificate = fs.readFileSync(options.cafSslCertificate)
-    this.sslKey = fs.readFileSync(options.cafSslKey)
+  constructor ({ host, cert, key }) {
+    this.host = host
+    this.key = key
+    this.cert = cert
   }
 
   getQf (codePostal, numeroAllocataire, callback) {
@@ -113,12 +112,12 @@ class CafService {
   getData ({ codePostal, numeroAllocataire }, callback) {
     request
       .post({
-        url: `${this.options.cafHost}/sgmap/wswdd/v1`,
+        url: `${this.host}/sgmap/wswdd/v1`,
         body: buildQuery({ codePostal, numeroAllocataire }),
         headers: { 'Content-Type': 'text/xml charset=utf-8' },
         gzip: true,
-        cert: this.sslCertificate,
-        key: this.sslKey,
+        cert: this.cert,
+        key: this.key,
         rejectUnauthorized: false,
         timeout: 10000
       }, (err, response, body) => {
