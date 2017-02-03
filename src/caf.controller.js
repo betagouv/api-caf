@@ -1,6 +1,5 @@
 const StandardError = require('standard-error');
 const CafService = require('./caf.service');
-const format = require('./../lib/utils/format')
 
 module.exports = CafController;
 
@@ -13,7 +12,7 @@ function CafController(options) {
     var numeroAllocataire = options.numeroAllocataire;
     cafService.getFamily(codePostal, numeroAllocataire, (err) => {
       if(err) return next(err);
-      return format(res, 'pong')
+      return res.send('pong');
     })
   }
 
@@ -25,7 +24,7 @@ function CafController(options) {
       if(data.quotientFamilial === 0) {
         return next(new StandardError('Pas de QF sur cette période', {code: 404}))
       }
-      return format(res, data)
+      return res.send(data);
     })
   }
 
@@ -34,7 +33,7 @@ function CafController(options) {
     var numeroAllocataire = req.query.numeroAllocataire;
     cafService.getAdress(codePostal, numeroAllocataire, (err, data) => {
       if(err) return next(err);
-      return format(res, data)
+      return res.send(data);
     })
   }
 
@@ -43,7 +42,7 @@ function CafController(options) {
     var numeroAllocataire = req.query.numeroAllocataire;
     cafService.getFamily(codePostal, numeroAllocataire, (err, data) => {
       if(err) return next(err);
-      return format(res, data)
+      return res.send(data);
     })
   }
 }
