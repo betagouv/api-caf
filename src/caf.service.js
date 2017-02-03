@@ -110,7 +110,7 @@ class CafService {
     })
   }
 
-  getData ({codePostal, numeroAllocataire, returnRawData}, callback) {
+  getData ({ codePostal, numeroAllocataire }, callback) {
     request
       .post({
         url: `${this.options.cafHost}/sgmap/wswdd/v1`,
@@ -122,13 +122,12 @@ class CafService {
         rejectUnauthorized: false,
         timeout: 10000
       }, (err, response, body) => {
-        if (returnRawData) return callback(err, body)
+        if (err) return callback(new StandardError('Request error', { code: 500 }))
         if (response.statusCode !== 200) return callback(new StandardError('Request error', { code: 500 }))
-
         parseXml(this.getFirstPart(body), (err, result) => {
           if (err) return callback(err)
           const returnData = result['soapenv:Envelope']['soapenv:Body'][0]['ns2:demanderDocumentWebResponse'][0]['return'][0]['beanRetourDemandeDocumentWeb'][0]
-          const returnCode = returnData['codeRetour'][0]
+          const returnCode = parseInt(returnData['codeRetour'][0])
           if (returnCode !== 0) {
             const error = errors[returnCode]
             return callback(new StandardError(error.msg, { code: error.code }))
