@@ -3,7 +3,6 @@ const express = require('express')
 const StandardError = require('standard-error')
 const expressBunyanLogger = require('express-bunyan-logger')
 const cors = require('cors')
-const formatFromUrl = require('./lib/middlewares/formatFromUrl')
 const loggerProperties = require('./lib/middlewares/logger')
 const formatError = require('./lib/middlewares/formatError')
 const caf = require('./src')
@@ -41,8 +40,6 @@ function Server ({config, logger}) {
     req.logger = logger;
     next();
   })
-
-  app.use(formatFromUrl)
 
   app.use('/api', caf(config));
 
