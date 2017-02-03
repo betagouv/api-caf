@@ -6,9 +6,10 @@
   "license": "ISC",
   "author": "Florian Delezenne <del.florian@gmail.com>",
   "scripts": {
-    "lint": "eslint src/**/*.js",
+    "lint": "eslint src test *.js",
     "start": "node app.js",
-    "test": "mocha -R spec src/test/** -t 100000"
+    "test:unit": "mocha test",
+    "test": "npm run lint"
   },
   "devDependencies": {
     "chai": "^3.5.0",
