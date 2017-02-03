@@ -4,7 +4,7 @@ const parseXml = require('xml2js').parseString
 const errors = require('./models/errors')
 const StandardError = require('standard-error')
 
-function buildQuery({ codePostal, numeroAllocataire }) {
+function buildQuery ({ codePostal, numeroAllocataire }) {
   return `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://v1.ws.wsdemandedocumentcafweb.cnaf/">
     <soap:Header/>
     <soap:Body>
@@ -22,20 +22,20 @@ function buildQuery({ codePostal, numeroAllocataire }) {
             </arg0>
         </tns:demanderDocumentWeb>
     </soap:Body>
-</soap:Envelope>`;
+</soap:Envelope>`
 }
 
 class CafService {
 
-  constructor(options) {
+  constructor (options) {
     this.options = options || {}
     this.sslCertificate = fs.readFileSync(options.cafSslCertificate)
     this.sslKey = fs.readFileSync(options.cafSslKey)
   }
 
-  getQf(codePostal, numeroAllocataire, callback) {
+  getQf (codePostal, numeroAllocataire, callback) {
     this.getData({codePostal, numeroAllocataire}, (err, data) => {
-      if(err) return callback(err)
+      if (err) return callback(err)
       const doc = data['drtData']
       const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
         return item['NOMPRENOM'][0]
@@ -53,9 +53,9 @@ class CafService {
     })
   }
 
-  getAdress(codePostal, numeroAllocataire, callback) {
+  getAdress (codePostal, numeroAllocataire, callback) {
     this.getData({codePostal, numeroAllocataire}, (err, data) => {
-      if(err) return callback(err)
+      if (err) return callback(err)
       const doc = data['drtData']
 
       const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
@@ -84,9 +84,9 @@ class CafService {
     })
   }
 
-  getFamily(codePostal, numeroAllocataire, callback) {
+  getFamily (codePostal, numeroAllocataire, callback) {
     this.getData({codePostal, numeroAllocataire}, (err, data) => {
-      if(err) return callback(err)
+      if (err) return callback(err)
       const doc = data['drtData']
       const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
         return {
@@ -95,7 +95,7 @@ class CafService {
           sexe: item['SEXE'][0]
         }
       })
-      const nodeEnfants = doc['identeEnfants'][0]['UNENFANT'] || [];
+      const nodeEnfants = doc['identeEnfants'][0]['UNENFANT'] || []
       const enfants = nodeEnfants.map((item) => {
         return {
           nomPrenom: item['NOMPRENOM'][0],
@@ -110,11 +110,11 @@ class CafService {
     })
   }
 
-  getData({codePostal, numeroAllocataire, returnRawData}, callback) {
+  getData ({codePostal, numeroAllocataire, returnRawData}, callback) {
     request
       .post({
         url: `${this.options.cafHost}/sgmap/wswdd/v1`,
-        body: buildQuery({ codePostal , numeroAllocataire }),
+        body: buildQuery({ codePostal, numeroAllocataire }),
         headers: { 'Content-Type': 'text/xml charset=utf-8' },
         gzip: true,
         cert: this.sslCertificate,
@@ -126,10 +126,10 @@ class CafService {
         if (response.statusCode !== 200) return callback(new StandardError('Request error', { code: 500 }))
 
         parseXml(this.getFirstPart(body), (err, result) => {
-          if(err) return callback(err)
+          if (err) return callback(err)
           const returnData = result['soapenv:Envelope']['soapenv:Body'][0]['ns2:demanderDocumentWebResponse'][0]['return'][0]['beanRetourDemandeDocumentWeb'][0]
           const returnCode = returnData['codeRetour'][0]
-          if(returnCode != 0) {
+          if (returnCode !== 0) {
             const error = errors[returnCode]
             return callback(new StandardError(error.msg, { code: error.code }))
           }
@@ -140,27 +140,27 @@ class CafService {
       })
   }
 
-  hasBodyError(body){
+  hasBodyError (body) {
     return body.indexOf('<codeRetour>0</codeRetour>') < 0
   }
 
-  getFirstPart(body) {
+  getFirstPart (body) {
     return this.getPart(1, body)
   }
 
-  getPart(part, body) {
+  getPart (part, body) {
     var lines = body.split('\n')
-    var separatorFound= 0
+    var separatorFound = 0
     var isHeader = false
-    var newBody =''
-    for(var line = 0; line < lines.length; line++){
-      if(lines[line].indexOf('--MIMEBoundaryurn_uuid_') === 0) {
+    var newBody = ''
+    for (var line = 0; line < lines.length; line++) {
+      if (lines[line].indexOf('--MIMEBoundaryurn_uuid_') === 0) {
         separatorFound++
         isHeader = true
       } else if (isHeader && lines[line].length === 1) {
         isHeader = false
       } else if (!isHeader && separatorFound === part) {
-        newBody += lines[line]+'\n'
+        newBody += lines[line] + '\n'
       }
     }
     return newBody

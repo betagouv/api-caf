@@ -13,13 +13,13 @@ const logger = bunyan.createLogger({
 
 const server = new Server({
   config: config,
-  logger: logger,
-});
+  logger: logger
+})
 
 server.start(function (err) {
   if (err) {
-    logger.fatal({error: err}, 'cannot recover from previous errors. shutting down now. error was', err.stack);
-    setTimeout(process.exit.bind(null, 99), 10);
+    logger.fatal({error: err}, 'cannot recover from previous errors. shutting down now. error was', err.stack)
+    setTimeout(process.exit.bind(null, 99), 10)
   }
-  logger.info('Sever successfully started.');
-});
+  logger.info('Sever successfully started.')
+})

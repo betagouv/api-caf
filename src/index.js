@@ -3,7 +3,7 @@ const Controller = require('./caf.controller')
 
 const router = express.Router()
 
-module.exports = function(options){
+module.exports = function (options) {
   const cafController = new Controller(options)
 
   router.get('/qf', cafController.getQf)
