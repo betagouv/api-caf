@@ -1,4 +1,3 @@
-const http = require('http')
 const express = require('express')
 const StandardError = require('standard-error')
 const expressBunyanLogger = require('express-bunyan-logger')
@@ -7,25 +6,13 @@ const loggerProperties = require('./lib/middlewares/logger')
 const formatError = require('./lib/middlewares/formatError')
 const caf = require('./src')
 
-module.exports = Server
-
-function Server ({config, logger}) {
-  var app = express()
-  app.set('port', config.port)
+function createServer ({ config, logger }) {
+  const app = express()
   app.set('json spaces', 2)
   app.set('logger', logger)
-
   app.disable('x-powered-by')
-  app.use(express.static('public'))
-  var corsOptions = {
-    exposedHeaders: ['Range', 'Content-Range', 'X-Content-Range'],
-    credentials: true,
-    origin: function (origin, callback) {
-      logger.info('using cors origin', origin)
-      callback(null, true)
-    }
-  }
-  app.use(cors(corsOptions))
+
+  app.use(cors())
 
   app.use(expressBunyanLogger({
     name: 'requests',
@@ -48,40 +35,7 @@ function Server ({config, logger}) {
 
   app.use(formatError)
 
-  this.getPort = function () {
-    return this.port
-  }
-
-  var server = http.createServer(app)
-  this.start = (onStarted) => {
-    server.listen(app.get('port'), function (error) {
-      if (error) {
-        logger.error({error: error}, 'Got error while starting server')
-        return onStarted(error)
-      }
-      this.port = server.address().port
-      app.set('port', this.port)
-      logger.info({
-        event: 'server_started',
-        port: this.port
-      }, 'Server listening on port', this.port)
-      onStarted()
-    })
-  }
-
-  this.stop = function (onStopped) {
-    logger.info({
-      event: 'server_stopping'
-    }, 'Stopping server')
-    server.close(function (error) {
-      if (error) {
-        logger.error({error: error}, 'Got error while stopping server')
-        return onStopped(error)
-      }
-      logger.info({
-        event: 'server_stopped'
-      }, 'server stopped')
-      onStopped()
-    })
-  }
+  return app
 }
+
+module.exports = createServer
