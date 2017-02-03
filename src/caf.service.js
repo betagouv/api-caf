@@ -1,17 +1,35 @@
 const request = require('request')
 const fs = require('fs')
-const Handlebars = require('handlebars')
 const UrlAssembler = require('url-assembler')
 const parseXml = require('xml2js').parseString
 const errors = require('./models/errors')
 const StandardError = require('standard-error')
 
+function buildQuery({ codePostal, numeroAllocataire }) {
+  return `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://v1.ws.wsdemandedocumentcafweb.cnaf/">
+    <soap:Header/>
+    <soap:Body>
+        <tns:demanderDocumentWeb xmlns:tns="http://v1.ws.wsdemandedocumentcafweb.cnaf/">
+            <arg0>
+                <app>WDD</app>
+                <id>?</id>
+                <beanEntreeDemandeDocumentWeb>
+                    <codeAppli>WDD</codeAppli>
+                    <codePostal>${codePostal}</codePostal>
+                    <matricule>${numeroAllocataire}</matricule>
+                    <typeDocument>4</typeDocument>
+                    <typeEnvoi>5</typeEnvoi>
+                </beanEntreeDemandeDocumentWeb>
+            </arg0>
+        </tns:demanderDocumentWeb>
+    </soap:Body>
+</soap:Envelope>`;
+}
+
 class CafService {
 
   constructor(options) {
     this.options = options || {}
-    const query = fs.readFileSync( __dirname + '/models/query.xml', 'utf-8')
-    this.queryTemplate = Handlebars.compile(query)
     this.sslCertificate = fs.readFileSync(options.cafSslCertificate)
     this.sslKey = fs.readFileSync(options.cafSslKey)
   }
@@ -100,7 +118,7 @@ class CafService {
       numeroAllocataire,
       typeDocument: 4
     }
-    const queryWithParameters = this.queryTemplate(parameters)
+    const queryWithParameters = buildQuery(parameters)
     const url = UrlAssembler(this.options.cafHost)
                   .template('/sgmap/wswdd/v1')
                   .toString()
