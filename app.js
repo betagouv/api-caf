@@ -1,8 +1,6 @@
 const bunyan = require('bunyan')
 const bunyanFormat = require('bunyan-format')
 const Server = require('./server')
-const http = require('http')
-const url = require('url')
 const config = require('./config.json')
 
 const logger = bunyan.createLogger({
@@ -12,15 +10,6 @@ const logger = bunyan.createLogger({
     outputMode: config.log.format
   })
 })
-
-const mhttp = require('http-measuring-client').create()
-mhttp.mixin(http)
-mhttp.on('stat', function (parsed, stats) {
-  logger.info({
-    parsedUri: parsed,
-    stats: stats
-  }, '%s %s took %dms (%d)', stats.method || 'GET', url.format(parsed), stats.totalTime, stats.statusCode);
-});
 
 const server = new Server({
   config: config,
