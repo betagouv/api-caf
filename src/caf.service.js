@@ -1,6 +1,5 @@
 const request = require('request')
 const fs = require('fs')
-const UrlAssembler = require('url-assembler')
 const parseXml = require('xml2js').parseString
 const errors = require('./models/errors')
 const StandardError = require('standard-error')
@@ -112,21 +111,10 @@ class CafService {
   }
 
   getData({codePostal, numeroAllocataire, returnRawData}, callback) {
-    const parameters = {
-      typeEnvoi: 5,
-      codePostal ,
-      numeroAllocataire,
-      typeDocument: 4
-    }
-    const queryWithParameters = buildQuery(parameters)
-    const url = UrlAssembler(this.options.cafHost)
-                  .template('/sgmap/wswdd/v1')
-                  .toString()
-
     request
       .post({
-        url: url,
-        body: queryWithParameters,
+        url: `${this.options.cafHost}/sgmap/wswdd/v1`,
+        body: buildQuery({ codePostal , numeroAllocataire }),
         headers: { 'Content-Type': 'text/xml charset=utf-8' },
         gzip: true,
         cert: this.sslCertificate,
