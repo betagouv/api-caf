@@ -43,4 +43,13 @@ function CafController ({ pingParams, serviceParams }) {
       return res.send(data)
     })
   }
+
+  this.getAll = function (req, res, next) {
+    var codePostal = req.query.codePostal
+    var numeroAllocataire = req.query.numeroAllocataire
+    cafService.getAll(codePostal, numeroAllocataire, (err, data) => {
+      if (err) return next(err)
+      return res.send(data)
+    })
+  }
 }
