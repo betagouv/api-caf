@@ -1,4 +1,3 @@
-const StandardError = require('standard-error')
 const CafService = require('./caf.service')
 
 module.exports = CafController
