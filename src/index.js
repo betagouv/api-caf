@@ -6,10 +6,7 @@ const router = express.Router()
 module.exports = function (options) {
   const cafController = new Controller(options)
 
-  router.get('/all', cafController.getAll)
-  router.get('/qf', cafController.getQf)
-  router.get('/adresse', cafController.getAdress)
-  router.get('/famille', cafController.getFamily)
+  router.get('/famille', cafController.getAll)
   router.get('/ping', cafController.ping)
 
   return router

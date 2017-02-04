@@ -113,30 +113,6 @@ class CafService {
     })
   }
 
-  getQf (codePostal, numeroAllocataire, callback) {
-    this.getData({codePostal, numeroAllocataire}, (err, data) => {
-      if (err) return callback(err)
-      const { allocataires, quotientFamilial, mois, annee } = parseAll(data)
-      callback(null, { allocataires, quotientFamilial, mois, annee })
-    })
-  }
-
-  getAdress (codePostal, numeroAllocataire, callback) {
-    this.getData({codePostal, numeroAllocataire}, (err, data) => {
-      if (err) return callback(err)
-      const { allocataires, adresse, mois, annee } = parseAll(data)
-      callback(null, { allocataires, adresse, mois, annee })
-    })
-  }
-
-  getFamily (codePostal, numeroAllocataire, callback) {
-    this.getData({codePostal, numeroAllocataire}, (err, data) => {
-      if (err) return callback(err)
-      const { allocataires, enfants } = parseAll(data)
-      callback(null, { allocataires, enfants })
-    })
-  }
-
   getData ({ codePostal, numeroAllocataire }, callback) {
     request
       .post({
