@@ -24,6 +24,69 @@ function buildQuery ({ codePostal, numeroAllocataire }) {
 </soap:Envelope>`
 }
 
+function isString (obj) {
+  return typeof obj === 'string'
+}
+
+function extractValue (node, key) {
+  if (!(key in node) || node[key].length === 0) return
+  return node[key][0]
+}
+
+function extractObject (node, mapping) {
+  const obj = {}
+  Object.keys(mapping).forEach(key => {
+    const def = isString(mapping[key]) ? { src: mapping[key] } : mapping[key]
+    const value = extractValue(node, def.src)
+    if (value) obj[key] = def.parse ? def.parse(value) : value
+  })
+  if (Object.keys(obj).length === 0) return
+  return obj
+}
+
+const parsePersonne = rawData => extractObject(rawData, {
+  nomPrenom: 'NOMPRENOM',
+  dateDeNaissance: 'DATNAISS',
+  sexe: 'SEXE'
+  // qualite: 'QUAL'
+})
+
+const parseAdresse = rawData => extractObject(rawData, {
+  identite: 'LIBLIG1ADR',
+  complementIdentite: 'LIBLIG2ADR',
+  complementIdentiteGeo: 'LIBLIG3ADR',
+  numeroRue: 'LIBLIG4ADR',
+  lieuDit: 'LIBLIG5ADR',
+  codePostalVille: 'LIBLIG6ADR',
+  pays: 'LIBLIG7ADR'
+})
+
+const parseQuotient = rawData => extractObject(rawData, {
+  mois: { src: 'DUMOIS', parse: parseInt },
+  annee: { src: 'DELANNEE', parse: parseInt },
+  quotientFamilial: { src: 'QUOTIENTF', parse: parseInt }
+})
+
+const parseAll = rawData => {
+  const rootElement = rawData['drtData']
+
+  const allocataires = rootElement['identePersonnes'][0]['UNEPERSONNE'].map(parsePersonne)
+  const enfants = (rootElement['identeEnfants'][0]['UNENFANT'] || []).map(parsePersonne)
+  const adresse = parseAdresse(rootElement['adresse'][0])
+  const quotient = parseQuotient(rootElement['quotients'][0]['QFMOIS'][0])
+
+  const { quotientFamilial, mois, annee } = quotient
+
+  return {
+    allocataires,
+    enfants,
+    adresse,
+    quotientFamilial,
+    mois,
+    annee
+  }
+}
+
 class CafService {
 
   constructor ({ host, cert, key }) {
@@ -32,80 +95,34 @@ class CafService {
     this.cert = cert
   }
 
+  getAll (codePostal, numeroAllocataire, done) {
+    this.getData({ codePostal, numeroAllocataire }, (err, data) => {
+      if (err) return done(err)
+      done(null, parseAll(data))
+    })
+  }
+
   getQf (codePostal, numeroAllocataire, callback) {
     this.getData({codePostal, numeroAllocataire}, (err, data) => {
       if (err) return callback(err)
-      const doc = data['drtData']
-      const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
-        return item['NOMPRENOM'][0]
-      })
-      const quotientData = doc['quotients'][0]['QFMOIS'][0]
-      const quotientFamilial = Number.parseInt(quotientData['QUOTIENTF'][0])
-      const mois = Number.parseInt(quotientData['DUMOIS'][0])
-      const annee = Number.parseInt(quotientData['DELANNEE'][0])
-      callback(null, {
-        allocataires,
-        quotientFamilial,
-        mois,
-        annee
-      })
+      const { allocataires, quotientFamilial, mois, annee } = parseAll(data)
+      callback(null, { allocataires, quotientFamilial, mois, annee })
     })
   }
 
   getAdress (codePostal, numeroAllocataire, callback) {
     this.getData({codePostal, numeroAllocataire}, (err, data) => {
       if (err) return callback(err)
-      const doc = data['drtData']
-
-      const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
-        return item['NOMPRENOM'][0]
-      })
-      const adress = doc['adresse'][0]
-      const quotientData = doc['quotients'][0]['QFMOIS'][0]
-      const mois = Number.parseInt(quotientData['DUMOIS'][0])
-      const annee = Number.parseInt(quotientData['DELANNEE'][0])
-      const adresse = {
-        identite: adress['LIBLIG1ADR'][0],
-        complementIdentite: adress['LIBLIG2ADR'][0],
-        complementIdentiteGeo: adress['LIBLIG3ADR'][0],
-        numeroRue: adress['LIBLIG4ADR'][0],
-        lieuDit: adress['LIBLIG5ADR'][0],
-        codePostalVille: adress['LIBLIG6ADR'][0],
-        pays: adress['LIBLIG7ADR'][0]
-      }
-
-      callback(null, {
-        adresse,
-        allocataires,
-        mois,
-        annee
-      })
+      const { allocataires, adresse, mois, annee } = parseAll(data)
+      callback(null, { allocataires, adresse, mois, annee })
     })
   }
 
   getFamily (codePostal, numeroAllocataire, callback) {
     this.getData({codePostal, numeroAllocataire}, (err, data) => {
       if (err) return callback(err)
-      const doc = data['drtData']
-      const allocataires = doc['identePersonnes'][0]['UNEPERSONNE'].map((item) => {
-        return {
-          nomPrenom: item['NOMPRENOM'][0],
-          dateDeNaissance: item['DATNAISS'][0],
-          sexe: item['SEXE'][0]
-        }
-      })
-      const nodeEnfants = doc['identeEnfants'][0]['UNENFANT'] || []
-      const enfants = nodeEnfants.map((item) => {
-        return {
-          nomPrenom: item['NOMPRENOM'][0],
-          dateDeNaissance: item['DATNAISS'][0],
-          sexe: item['SEXE'][0]
-        }
-      })
-      callback(null, {
-        enfants,
-        allocataires
-      })
+      const { allocataires, enfants } = parseAll(data)
+      callback(null, { allocataires, enfants })
     })
   }
 
