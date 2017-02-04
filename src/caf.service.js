@@ -169,10 +169,6 @@ class CafService {
         })
       })
   }
-
-  hasBodyError (body) {
-    return body.indexOf('<codeRetour>0</codeRetour>') < 0
-  }
 }
 
 module.exports = CafService
