@@ -1,13 +1,13 @@
 const express = require('express')
-const Controller = require('./caf.controller')
+const { ping, injectClient, fetch } = require('./components')
 
-const router = express.Router()
+module.exports = function ({ serviceParams, pingParams }) {
+  const router = express.Router()
 
-module.exports = function (options) {
-  const cafController = new Controller(options)
+  router.use(injectClient(serviceParams))
 
-  router.get('/famille', cafController.getAll)
-  router.get('/ping', cafController.ping)
+  router.get('/ping', ping(pingParams))
+  router.get('/famille', fetch())
 
   return router
 }
