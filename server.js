@@ -5,7 +5,7 @@ const cafRouter = require('./lib/router')
 const fs = require('fs')
 const config = require('./config.json')
 
-const port = config.port || 3000
+const port = process.env.PORT || config.port || 3000
 const app = express()
 
 app.set('json spaces', 2)
@@ -20,10 +20,7 @@ app.use('/api', cafRouter({
     cert: fs.readFileSync(config.cafSslCertificate),
     key: fs.readFileSync(config.cafSslKey)
   },
-  pingParams: {
-    codePostal: config.codePostal,
-    numeroAllocataire: config.numeroAllocataire
-  }
+  pingParams: config.cafPingParams
 }))
 
 app.use(function notFound (req, res) {

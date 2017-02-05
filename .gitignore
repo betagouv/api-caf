@@ -1,3 +1,8 @@
+.DS_Store
+
 node_modules
-certs
+
 *.log
+
+certs
+config.json

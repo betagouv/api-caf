@@ -1,0 +1,10 @@
+{
+  "port": 3000,
+  "cafHost": "https://caf-host",
+  "cafSslCertificate": "/path/to/cert",
+  "cafSslKey": "/path/to/key",
+  "cafPingParams": {
+    "numeroAllocataire": "XXXXXXX",
+    "codePostal": "XXXXX"
+  }
+}
