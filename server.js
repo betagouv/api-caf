@@ -1,7 +1,7 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const cafRouter = require('./src/router')
+const cafRouter = require('./lib/router')
 const fs = require('fs')
 const config = require('./config.json')
 
