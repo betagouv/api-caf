@@ -26,7 +26,7 @@ Pour utiliser ce projet, vous devez créer un fichier `config.json`. Vous pouvez
 
 | Clé | Description | Exemple |
 | --- | --- | --- |
-| `port` | Port d'écoute du serveur HTTP | 5000 (valeur par défaut) |
+| `port` | Port d'écoute du serveur HTTP | `5000` (valeur par défaut) |
 | `cafHost` | Hôte du service CAF | `https://caf-host` |
 | `cafSslCertificate` | Chemin vers le certificat permettant de se connecter au service CAF | `/path/to/cert` |
 | `cafSslKey` | Chemin vers la clé permettant de se connecter au service CAF | `/path/to/key` |
