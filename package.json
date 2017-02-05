@@ -7,7 +7,7 @@
   "author": "Florian Delezenne <del.florian@gmail.com>",
   "scripts": {
     "lint": "eslint src test *.js",
-    "start": "node app.js",
+    "start": "node server",
     "test:unit": "mocha test",
     "test": "npm run lint"
   },
