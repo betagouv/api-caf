@@ -27,8 +27,8 @@ app.use('/api', cafRouter({
   }
 }))
 
-app.use(function notFound (req, res, next) {
-  next(new StandardError('no route for URL ' + req.url, {code: 404}))
+app.use(function notFound (req, res) {
+  res.status(404).send({ code: 404, message: `No route for ${req.url}` })
 })
 
 app.use(function (err, req, res, next) {
