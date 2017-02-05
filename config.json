@@ -1,13 +1,8 @@
 {
-  "appname": "api-caf",
   "port": 3001,
   "cafHost": "https://pep-test.caf.fr",
   "cafSslCertificate": "./certs/bourse.sgmap.fr.bundle.crt",
   "cafSslKey": "./certs/bourse.sgmap.fr.key",
   "numeroAllocataire": "0000354",
   "codePostal": "99148",
-  "log": {
-    "level": "debug",
-    "format": "simple"
-  }
 }
