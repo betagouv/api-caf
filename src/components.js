@@ -1,8 +1,9 @@
 const { CAFClient } = require('./client')
 
 function injectClient (clientParams) {
+  const client = new CAFClient(clientParams)
   return function (req, res, next) {
-    req.client = new CAFClient(clientParams)
+    req.client = client
     next()
   }
 }
