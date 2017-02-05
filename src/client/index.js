@@ -1,7 +1,13 @@
 const request = require('request')
 const parseXml = require('xml2js').parseString
 const errors = require('./errors.json')
-const StandardError = require('standard-error')
+
+class ClientError extends Error {
+  constructor (message, code) {
+    super(message)
+    this.code = code
+  }
+}
 
 function buildQuery ({ codePostal, numeroAllocataire }) {
   return `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://v1.ws.wsdemandedocumentcafweb.cnaf/">
@@ -98,7 +104,7 @@ function extractRealBody (body) {
   return body.substring(startPos, endPos + endPattern.length)
 }
 
-class CAFClient {
+class Client {
 
   constructor ({ host, cert, key }) {
     this.host = host
@@ -125,7 +131,7 @@ class CAFClient {
         rejectUnauthorized: false,
         timeout: 10000
       }, (err, response, body) => {
-        const finishWithError = () => callback(new StandardError('Request error', { code: 500 }))
+        const finishWithError = () => callback(new Error('Request error'))
         if (err) return finishWithError()
         if (response.statusCode !== 200) return finishWithError()
         const realBody = extractRealBody(body)
@@ -136,8 +142,10 @@ class CAFClient {
           const returnData = result['soapenv:Envelope']['soapenv:Body'][0]['ns2:demanderDocumentWebResponse'][0]['return'][0]['beanRetourDemandeDocumentWeb'][0]
           const returnCode = parseInt(returnData['codeRetour'][0])
           if (returnCode !== 0) {
-            const error = errors[returnCode]
-            return callback(new StandardError(error.msg, { code: error.code }))
+            return callback(new ClientError(
+              errors[returnCode].msg,
+              errors[returnCode].code
+            ))
           }
           parseXml(returnData['fluxRetour'][0], (err, result) => {
             callback(err, result)
@@ -147,4 +155,4 @@ class CAFClient {
   }
 }
 
-module.exports = { CAFClient }
+module.exports = { Client, ClientError }

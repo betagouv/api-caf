@@ -1,5 +1,4 @@
 const express = require('express')
-const StandardError = require('standard-error')
 const morgan = require('morgan')
 const cors = require('cors')
 const cafRouter = require('./src/router')
@@ -31,13 +30,15 @@ app.use(function notFound (req, res) {
   res.status(404).send({ code: 404, message: `No route for ${req.url}` })
 })
 
-app.use(function (err, req, res, next) {
-  console.error(err)
-  res.status(500).send({
-    code: 500,
-    message: err.message
+if (process.env.NODE_ENV === 'production') {
+  app.use(function (err, req, res, next) {
+    console.error(err)
+    res.status(500).send({
+      code: 500,
+      message: 'Internal Server Error'
+    })
   })
-})
+}
 
 app.listen(port, () => {
   console.log('Start listening on port ' + port)
