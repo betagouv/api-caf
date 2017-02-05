@@ -2,7 +2,7 @@ const express = require('express')
 const StandardError = require('standard-error')
 const morgan = require('morgan')
 const cors = require('cors')
-const caf = require('./src')
+const cafRouter = require('./src/router')
 const fs = require('fs')
 
 function createServer ({ config, logger }) {
@@ -13,7 +13,7 @@ function createServer ({ config, logger }) {
   app.use(cors())
   app.use(morgan('dev'))
 
-  app.use('/api', caf({
+  app.use('/api', cafRouter({
     serviceParams: {
       host: config.cafHost,
       cert: fs.readFileSync(config.cafSslCertificate),
