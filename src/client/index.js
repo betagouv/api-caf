@@ -1,6 +1,6 @@
 const request = require('request')
 const parseXml = require('xml2js').parseString
-const errors = require('./models/errors')
+const errors = require('./errors.json')
 const StandardError = require('standard-error')
 
 function buildQuery ({ codePostal, numeroAllocataire }) {
@@ -98,7 +98,7 @@ function extractRealBody (body) {
   return body.substring(startPos, endPos + endPattern.length)
 }
 
-class CafService {
+class CAFClient {
 
   constructor ({ host, cert, key }) {
     this.host = host
@@ -147,4 +147,4 @@ class CafService {
   }
 }
 
-module.exports = CafService
+module.exports = { CAFClient }
