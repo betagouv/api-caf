@@ -13,12 +13,14 @@ Ces informations sont délivrées de façon sécurisée, sur la base du numéro 
 
 Les données sont mises à jour de façon mensuelle.
 
-## Pré-requis
+## Installation et utilisation
+
+### Pré-requis
 
 * [Node.js](https://nodejs.org) version 6 ou supérieure
 * [yarn](https://yarnpkg.com)
 
-## Configuration
+### Configuration
 
 Pour utiliser ce projet, vous devez créer un fichier `config.json`. Vous pouvez pour cela vous inspirer du fichier `config.example.json`.
 
@@ -31,31 +33,33 @@ Pour utiliser ce projet, vous devez créer un fichier `config.json`. Vous pouvez
 | `cafPingParams.numeroAllocataire` | Numéro d'allocataire à utiliser pour le service de PING | `1234567` |
 | `cafPingParams.codePostal` | Code postal à utiliser pour le service de PING | `12345` |
 
-## Installation des dépendances
+### Installation des dépendances
 
 ```bash
 yarn
 ```
 
-## Lancement du service
+### Lancement du service
 
 ```bash
 yarn start
 ```
 
-## Lancer les tests
+### Lancer les tests
 
 ```bash
 yarn test
 ```
 
-## API
+## Documentation de l'API
 
-#### Obtenir les informations concernant une famille
+**Pour obtenir les informations concernant une famille :**
+
+*Requête :*
 
 `GET /api/famille?numeroAllocataire=123456&codePostal=92330`
 
-Réponse :
+*Réponse :*
 
 ```json
 {
@@ -91,11 +95,13 @@ Réponse :
 }
 ```
 
-#### Vérifier la disponibilité du service
+**Pour vérifier la disponibilité du service**
+
+*Requête :*
 
 `GET /api/ping`
 
-Réponse :
+*Réponse :*
 
 * `pong` si le service fonctionne
 * `boom` sinon
