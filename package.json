@@ -2,8 +2,8 @@
   "name": "api-caf",
   "version": "1.0.0",
   "description": "API CAF",
-  "license": "ISC",
-  "author": "Florian Delezenne <del.florian@gmail.com>",
+  "license": "MIT",
+  "author": "tech@particulier.api.gouv.fr",
   "scripts": {
     "lint": "eslint lib test *.js",
     "start": "node server",
