@@ -12,7 +12,7 @@ describe('new Client({ host, key, cert })', () => {
   const numeroAllocataire = '7681716'
   const key = fs.readFileSync(path.join(__dirname, '../certs/particulier-caf.key'))
   const cert = fs.readFileSync(path.join(__dirname, '../certs/particulier-caf.bundle.crt'))
-  
+
   let client
   beforeEach(() => {
     client = new Client({ host: baseUrl, key, cert })
@@ -89,12 +89,13 @@ describe('new Client({ host, key, cert })', () => {
       return client.getAll(codePostal, numeroAllocataire)
         .then((actual) => {
           // Then
+          expect(actual).to.deep.equal(expected)
         })
     })
 
     it('uses the given client certificate and key', () => {
       // Given
-        return client.getAll(codePostal, numeroAllocataire)
+      return client.getAll(codePostal, numeroAllocataire)
           .then((actual) => {
             // Then
             expect(recordedClientKey).to.equal(key)
@@ -102,7 +103,6 @@ describe('new Client({ host, key, cert })', () => {
           })
     })
   })
-
 
   function exampleRequest () {
     return `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://v1.ws.wsdemandedocumentcafweb.cnaf/">
@@ -124,12 +124,8 @@ describe('new Client({ host, key, cert })', () => {
                 </soap:Body>
             </soap:Envelope>`
   }
-
 })
 
-function removeXmlSpacing (xmlString) {
-  return xmlString.replace(/>\s</mg, '><')
-}
 function exampleResponse () {
   return "--MIMEBoundaryurn_uuid_D555A7429610CCCBBB1493716971820\r\nContent-Type: application/xop+xml; charset=utf-8; type=\"text/xml\"\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <0.urn:uuid:9BA817A2C44B237B741493717501717@apache.org>\r\n\r\n<?xml version='1.0' encoding='utf-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns2:demanderDocumentWebResponse xmlns:ns2=\"http://v1.ws.wsdemandedocumentcafweb.cnaf/\"><return><beanRetourDemandeDocumentWeb><codeRetour>0</codeRetour><fluxRetour>&lt;?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n&lt;drtData>\n    &lt;adresse>\n        &lt;LIBLIG1ADR>Madame MARIE DUPONT&lt;/LIBLIG1ADR>\n        &lt;LIBLIG2ADR>&lt;/LIBLIG2ADR>\n        &lt;LIBLIG3ADR>ESCALIER B&lt;/LIBLIG3ADR>\n        &lt;LIBLIG4ADR>123 RUE BIDON&lt;/LIBLIG4ADR>\n        &lt;LIBLIG5ADR>&lt;/LIBLIG5ADR>\n        &lt;LIBLIG6ADR>12345 CONDAT&lt;/LIBLIG6ADR>\n        &lt;LIBLIG7ADR>FRANCE&lt;/LIBLIG7ADR>\n    &lt;/adresse>\n    &lt;identeEnfants>\n        &lt;UNENFANT>\n            &lt;NOMPRENOM>BENJAMINE DUPONT&lt;/NOMPRENOM>\n            &lt;DATNAISS>10082016&lt;/DATNAISS>\n            &lt;SEXE>M&lt;/SEXE>\n        &lt;/UNENFANT>\n    &lt;/identeEnfants>\n    &lt;identePersonnes>\n        &lt;UNEPERSONNE>\n            &lt;QUAL>Madame&lt;/QUAL>\n            &lt;NOMPRENOM>MARIE DUPONT&lt;/NOMPRENOM>\n            &lt;DATNAISS>12111988&lt;/DATNAISS>\n            &lt;SEXE>F&lt;/SEXE>\n        &lt;/UNEPERSONNE>\n        &lt;UNEPERSONNE>\n            &lt;QUAL>Monsieur&lt;/QUAL>\n            &lt;NOMPRENOM>JEAN DUPONT&lt;/NOMPRENOM>\n            &lt;DATNAISS>18101988&lt;/DATNAISS>\n            &lt;SEXE>M&lt;/SEXE>\n        &lt;/UNEPERSONNE>\n    &lt;/identePersonnes>\n    &lt;quotients>\n        &lt;QFMOIS>\n            &lt;DUMOIS>4&lt;/DUMOIS>\n            &lt;DELANNEE>2017&lt;/DELANNEE>\n            &lt;QUOTIENTF>1998&lt;/QUOTIENTF>\n        &lt;/QFMOIS>\n    &lt;/quotients>\n&lt;/drtData>\n</fluxRetour><libelleRetour>Votre demande est bien enregistrée. Un document vous sera adressé à votre domicile dans les prochains jours.</libelleRetour></beanRetourDemandeDocumentWeb></return></ns2:demanderDocumentWebResponse></soapenv:Body></soapenv:Envelope>\r\n--MIMEBoundaryurn_uuid_D555A7429610CCCBBB1493716971820--"
 }
